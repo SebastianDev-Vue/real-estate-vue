@@ -1,24 +1,23 @@
 <script setup>
-import { ref } from 'vue'
 import { useField, useForm } from 'vee-validate'
 import { useRouter } from 'vue-router'
 import { collection, addDoc } from 'firebase/firestore'
 import { useFirestore } from 'vuefire'
-import { LMap, LTileLayer } from '@vue-leaflet/vue-leaflet'
+import { LMap, LTileLayer, LMarker } from '@vue-leaflet/vue-leaflet'
 
 import { validationSchema, imageSchema } from '../../validations/propertySchema'
 import useImage from '../../composables/useImage'
+import useLocationMap from '../../composables/useLocationMap'
 
 import 'leaflet/dist/leaflet.css'
 
 const items = [1, 2, 3, 4, 5]
 
-const zoom = ref(15)
-
 const router = useRouter()
 const db = useFirestore()
 
 const { uploadImage, urlImage, url } = useImage()
+const { zoom, center, handlerPin } = useLocationMap()
 
 const { handleSubmit } = useForm({
   validationSchema: {
@@ -44,7 +43,8 @@ const submit = handleSubmit(async (values) => {
 
   const docRef = await addDoc(collection(db, 'properties'), {
     ...property,
-    image: url.value
+    image: url.value,
+    location: center.value
   })
 
   if (docRef.id) {
@@ -130,19 +130,14 @@ const submit = handleSubmit(async (values) => {
 
       <v-checkbox label="Piscina" v-model="pool.value.value" />
 
-      <div style="height: 600px; width: 800px">
-        <l-map
-          ref="map"
-          v-model:zoom="zoom"
-          :center="[47.41322, -1.219482]"
-          :use-global-leaflet="false"
-        >
-          <l-tile-layer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            layer-type="base"
-            name="OpenStreetMap"
-          ></l-tile-layer>
-        </l-map>
+      <h2 class="font-weight-bold text-center my-5">Ubicacion</h2>
+      <div class="pb-10">
+        <div style="height: 600px">
+          <LMap v-model:zoom="zoom" :center="center" :use-global-leaflet="false">
+            <LMarker :lat-lng="center" draggable @moveend="handlerPin" />
+            <LTileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"></LTileLayer>
+          </LMap>
+        </div>
       </div>
 
       <v-btn @click="submit" color="pink-accent-3" block> Agregar Propiedad </v-btn>
