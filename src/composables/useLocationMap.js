@@ -18,5 +18,3 @@ const useLocationMap = () => {
 }
 
 export default useLocationMap
-
-// 4.668408, -74.135418
