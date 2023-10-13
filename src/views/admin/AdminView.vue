@@ -1,7 +1,8 @@
 <script setup>
 import useProperties from '../../composables/useProperties'
+import { propertyPrice } from '../../helpers'
 
-const { propertiesCollection, propertyPrice } = useProperties()
+const { propertiesCollection, deleteItem } = useProperties()
 </script>
 
 <template>
@@ -26,7 +27,9 @@ const { propertiesCollection, propertyPrice } = useProperties()
             :to="{ name: 'edit-property', params: { id: property.id } }"
             >Editar</v-btn
           >
-          <v-btn color="red-darken-1" flat>Eliminar</v-btn>
+          <v-btn @click="deleteItem(property.id, property.image)" color="red-darken-1" flat
+            >Eliminar</v-btn
+          >
         </template>
 
         <v-list-item-title>{{ property.title }}</v-list-item-title>
